@@ -1,12 +1,16 @@
 plugins {
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'java'
+    id 'java'
+    id 'org.springframework.boot' version '3.4.3'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'ru.hpclab.hl'
-version = '0.0.1-SNAPSHOT'
+version '1.0-SNAPSHOT'
+
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
@@ -14,10 +18,11 @@ repositories {
 }
 
 dependencies {
-	implementation group: 'org.springframework', name: 'spring-webmvc', version: '6.2.3'
-	compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.1.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-test {
-	useJUnitPlatform()
+tasks.named('test') {
+    useJUnitPlatform()
 }
