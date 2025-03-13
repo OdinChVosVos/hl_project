@@ -1,4 +1,4 @@
-package ru.hpclab.hl.module1.controller.exeption;
+package ru.hpclab.hl.module1.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
