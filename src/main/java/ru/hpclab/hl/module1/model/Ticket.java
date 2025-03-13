@@ -33,6 +33,7 @@ public class Ticket {
     private LocalDateTime sessionDate;
 
     @Column(name = "seat", nullable = false)
+
     private int seat;
 
     @Column(name = "price", nullable = false)

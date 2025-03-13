@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.hpclab.hl.module1.dto.TicketDto;
 import ru.hpclab.hl.module1.service.TicketService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,10 +56,11 @@ public class TicketController {
 
 
     @GetMapping("/viewers/{movieId}")
-    @Operation(summary = "Получение количества зрителей на фильме за день")
-    public Long getMovieViewersByDay(
+    @Operation(summary = "Получение максимального количества зрителей на фильме за день")
+    public Long getMaxMovieViewersByDay(
             @PathVariable Long movieId,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
-        return ticketService.getMovieViewersByDay(movieId, date);
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ticketService.getMaxViewersByDay(movieId, date);
     }
+
 }

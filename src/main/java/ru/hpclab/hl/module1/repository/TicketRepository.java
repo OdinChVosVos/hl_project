@@ -7,14 +7,24 @@ import org.springframework.stereotype.Repository;
 import ru.hpclab.hl.module1.model.Customer;
 import ru.hpclab.hl.module1.model.Ticket;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    @Query("SELECT COUNT(t) FROM Ticket t WHERE t.movie.id = :movieId AND DATE(t.sessionDate) = DATE(:date)")
+    @Query(value = """
+            SELECT MAX(ticketCount)\s
+            FROM (
+                SELECT COUNT(t) AS ticketCount
+                FROM public.ticket t
+                WHERE t.movie_id = :movieId
+                AND DATE(t.session_date) = :sessionDate
+                GROUP BY t.session_date
+            ) as foo
+    """, nativeQuery = true)
     Long countTicketsByMovieAndDate(
             @Param("movieId") Long movieId,
-            @Param("date") LocalDateTime date);
+            @Param("sessionDate") LocalDate sessionDate);
 
 }

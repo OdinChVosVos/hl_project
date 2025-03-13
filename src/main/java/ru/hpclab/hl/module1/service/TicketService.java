@@ -11,6 +11,7 @@ import ru.hpclab.hl.module1.dto.TicketDto;
 import ru.hpclab.hl.module1.model.Ticket;
 import ru.hpclab.hl.module1.repository.TicketRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -88,7 +89,7 @@ public class TicketService {
         }
     }
 
-    public Long getMovieViewersByDay(Long movieId, LocalDateTime date) {
+    public Long getMaxViewersByDay(Long movieId, LocalDate date) {
         return ticketRepository.countTicketsByMovieAndDate(movieId, date);
     }
 
