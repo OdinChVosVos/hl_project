@@ -1,9 +1,8 @@
 services:
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: openjdk:21
+    container_name: springboot-app
     ports:
       - "8080:8080"
     environment:
@@ -11,6 +10,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_SHOW_SQL=true
+    volumes:
+      - /home/fedor/module1-1.0-SNAPSHOT.jar:/app.jar
+    command: ["java", "-jar", "/app.jar"]
     depends_on:
       db:
         condition: service_healthy
@@ -35,6 +37,7 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - app-network
+
 
 networks:
   app-network:
