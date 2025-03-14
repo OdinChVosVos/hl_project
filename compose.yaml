@@ -1,22 +1,22 @@
 version: '3.8'
 services:
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-      - SPRING_JPA_SHOW_SQL=true
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - app-network
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+#      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+#      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+#      - SPRING_JPA_SHOW_SQL=true
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    networks:
+#      - app-network
 
   db:
     image: 'postgres:15.4-alpine3.18'
@@ -33,12 +33,19 @@ services:
       retries: 10
       start_period: 10s
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./src/main/resources:/docker-entrypoint-initdb.d
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - app-network
 
+  sql-generator:
+    image: python:3.12-alpine
+    volumes:
+      - ./src/main/resources:/app/src/main/resources
+      - ./generate_sql.py:/app/generate_sql.py
+    working_dir: /app
+    command: [ "python", "generate_sql.py" ]
 
 networks:
   app-network:
