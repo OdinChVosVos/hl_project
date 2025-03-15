@@ -1,10 +1,8 @@
-version: '3.8'
 services:
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: openjdk:21
+    container_name: springboot-app
     ports:
       - "8080:8080"
     environment:
@@ -12,9 +10,9 @@ services:
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_SHOW_SQL=true
-    depends_on:
-      db:
-        condition: service_healthy
+    volumes:
+      - ./module1-1.0-SNAPSHOT.jar:/app.jar
+    command: ["java", "-jar", "/app.jar"]
     networks:
       - app-network
 
@@ -42,6 +40,7 @@ services:
       sql-generator:
         condition: service_completed_successfully
 
+
   sql-generator:
     image: python:3.12-alpine
     volumes:
@@ -49,6 +48,7 @@ services:
       - ./generate_sql.py:/app/generate_sql.py
     working_dir: /app
     command: [ "python", "generate_sql.py" ]
+
 
 networks:
   app-network:
