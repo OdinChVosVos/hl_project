@@ -53,3 +53,4 @@ Thumbs.db
 /.gradle/
 /build/
 /src/main/resources/sql/
+/src/main/resources/data.sql

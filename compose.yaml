@@ -35,6 +35,9 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - app-network
+    depends_on:
+      sql-generator:
+        condition: service_completed_successfully
 
 networks:
   app-network:
