@@ -31,10 +31,23 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+    volumes:
+      - ./src/main/resources:/docker-entrypoint-initdb.d
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - app-network
+    depends_on:
+      sql-generator:
+        condition: service_completed_successfully
+
+  sql-generator:
+    image: python:3.12-alpine
+    volumes:
+      - ./src/main/resources:/app/src/main/resources
+      - ./generate_sql.py:/app/generate_sql.py
+    working_dir: /app
+    command: [ "python", "generate_sql.py" ]
 
 networks:
   app-network:
