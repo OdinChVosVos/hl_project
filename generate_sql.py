@@ -31,6 +31,10 @@ for i in range(num_tickets):
 
 # SQL script
 table_definitions = """
+DROP TABLE IF EXISTS public.ticket CASCADE;
+DROP TABLE IF EXISTS public.customer CASCADE;
+DROP TABLE IF EXISTS public.movie CASCADE;
+
 CREATE TABLE public.movie (
     id          SERIAL              PRIMARY KEY  NOT NULL,
     name        VARCHAR(256)        NOT NULL,
@@ -56,17 +60,32 @@ CREATE TABLE public.ticket (
 );
 """
 
-insert_movies = "INSERT INTO public.movie (id, name, genre, duration) VALUES\n" + ",\n".join(
+insert_movies = """
+INSERT INTO public.movie (id, name, genre, duration)
+VALUES
+""" + ",\n".join(
     [f"({id}, '{name}', '{genre}', {duration})" for id, name, genre, duration in movies]
-) + ";\n"
+) + """
+ON CONFLICT (id) DO NOTHING;
+"""
 
-insert_customers = "INSERT INTO public.customer (id, name, email) VALUES\n" + ",\n".join(
+insert_customers = """
+INSERT INTO public.customer (id, name, email)
+VALUES
+""" + ",\n".join(
     [f"({id}, '{name}', '{email}')" for id, name, email in customers]
-) + ";\n"
+) + """
+ON CONFLICT (id) DO NOTHING;
+"""
 
-insert_tickets = "INSERT INTO public.ticket (id, movie_id, customer_id, session_date, seat, price) VALUES\n" + ",\n".join(
+insert_tickets = """
+INSERT INTO public.ticket (id, movie_id, customer_id, session_date, seat, price)
+VALUES
+""" + ",\n".join(
     [f"({id}, {movie_id}, {customer_id}, '{session_date}', {seat}, {price})" for id, movie_id, customer_id, session_date, seat, price in tickets]
-) + ";\n"
+) + """
+ON CONFLICT (id) DO NOTHING;
+"""
 
 # Write to file
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
