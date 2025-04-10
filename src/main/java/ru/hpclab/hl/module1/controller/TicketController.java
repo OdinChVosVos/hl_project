@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hpclab.hl.module1.dto.TicketDto;
 import ru.hpclab.hl.module1.service.TicketService;
@@ -21,6 +22,12 @@ public class TicketController {
     private final TicketService ticketService;
 
 
+
+    @PostMapping("/clear")
+    public ResponseEntity<String> clearAll() {
+        ticketService.clearAll();
+        return ResponseEntity.ok("All tickets cleared");
+    }
 
     @GetMapping
     @Operation(summary = "Получение билета `без пагинации")

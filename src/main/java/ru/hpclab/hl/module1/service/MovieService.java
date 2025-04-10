@@ -26,6 +26,14 @@ public class MovieService {
 
     private final MovieRepository movieRepository;
     private final ModelMapper modelMapper;
+    private final TicketService ticketService;
+
+
+    @Transactional
+    public void clearAll() {
+        ticketService.clearAll();  // Clear dependent tickets first
+        movieRepository.deleteAll();
+    }
 
 
 

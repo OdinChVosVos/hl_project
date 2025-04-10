@@ -3,6 +3,7 @@ package ru.hpclab.hl.module1.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hpclab.hl.module1.dto.CustomerDto;
 import ru.hpclab.hl.module1.model.Customer;
@@ -19,6 +20,11 @@ public class CustomerController {
     private final CustomerService customerService;
 
 
+    @PostMapping("/clear")
+    public ResponseEntity<String> clearAll() {
+        customerService.clearAll();
+        return ResponseEntity.ok("All customers and related tickets cleared");
+    }
 
     @GetMapping
     @Operation(summary = "Получение пользователей `без пагинации")

@@ -26,7 +26,14 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
+    private final TicketService ticketService;
 
+
+    @Transactional
+    public void clearAll() {
+        ticketService.clearAll();  // Clear dependent tickets first
+        customerRepository.deleteAll();
+    }
 
 
     // Get all customers (no pagination)

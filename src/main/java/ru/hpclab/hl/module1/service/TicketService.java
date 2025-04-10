@@ -29,6 +29,11 @@ public class TicketService {
     private final ModelMapper modelMapper;
 
 
+    @Transactional
+    public void clearAll() {
+        ticketRepository.deleteAll();
+    }
+
 
     // Get all tickets (no pagination)
     public List<TicketDto> getAllTickets() {

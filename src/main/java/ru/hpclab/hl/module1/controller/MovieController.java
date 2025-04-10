@@ -3,6 +3,7 @@ package ru.hpclab.hl.module1.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hpclab.hl.module1.dto.MovieDto;
 import ru.hpclab.hl.module1.service.MovieService;
@@ -18,6 +19,11 @@ public class MovieController {
     private final MovieService movieService;
 
 
+    @PostMapping("/clear")
+    public ResponseEntity<String> clearAll() {
+        movieService.clearAll();
+        return ResponseEntity.ok("All movies and related tickets cleared");
+    }
 
     @GetMapping
     @Operation(summary = "Получение кино `без пагинации")
