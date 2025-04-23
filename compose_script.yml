@@ -11,13 +11,15 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-      - SPRING_JPA_SHOW_SQL=false
+      - SPRING_JPA_SHOW_SQL=${JPA_SHOW_SQL:-false}
+      - SERVER_TOMCAT_MAX_THREADS=${TOMCAT_MAX_THREADS:-200}
     depends_on:
       db:
         condition: service_healthy
     networks:
       - app-network
-
+    cpus: "2.0"
+    mem_limit: 512m
 
   db:
     image: 'postgres:15.4-alpine3.18'

@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.hpclab.hl.module1.dto.TicketDto;
 import ru.hpclab.hl.module1.model.Ticket;
 import ru.hpclab.hl.module1.repository.TicketRepository;
@@ -27,6 +30,7 @@ public class TicketService {
 
     private final TicketRepository ticketRepository;
     private final ModelMapper modelMapper;
+    private final RestTemplate restTemplate;
 
 
     @Transactional
@@ -95,7 +99,29 @@ public class TicketService {
     }
 
     public Long getMaxViewersByDay(Long movieId, LocalDate date) {
-        return ticketRepository.countTicketsByMovieAndDate(movieId, date);
+        try {
+            // Define the URL of the external service with path variable
+            String url = "http://localhost:8081/api/v1/ticket/viewers/{movieId}";
+
+            // Create URI with parameters
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+                    .queryParam("date", date.toString());
+
+            // Send GET request
+            ResponseEntity<Long> response = restTemplate.getForEntity(
+                    builder.buildAndExpand(movieId).toUri(),
+                    Long.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                return response.getBody();
+            } else {
+                // Handle error cases
+                throw new RuntimeException("Failed to get max viewers from external service");
+            }
+        } catch (Exception e) {
+            // Handle exceptions (timeout, connection refused, etc.)
+            throw new RuntimeException("Error communicating with external service", e);
+        }
     }
 
 }

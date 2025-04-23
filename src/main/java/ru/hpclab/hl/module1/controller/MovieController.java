@@ -19,7 +19,7 @@ public class MovieController {
     private final MovieService movieService;
 
 
-    @PostMapping("/clear")
+    @DeleteMapping("/clear")
     public ResponseEntity<String> clearAll() {
         movieService.clearAll();
         return ResponseEntity.ok("All movies and related tickets cleared");

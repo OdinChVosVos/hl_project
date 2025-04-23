@@ -20,7 +20,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
 
-    @PostMapping("/clear")
+    @DeleteMapping("/clear")
     public ResponseEntity<String> clearAll() {
         customerService.clearAll();
         return ResponseEntity.ok("All customers and related tickets cleared");

@@ -23,7 +23,7 @@ public class TicketController {
 
 
 
-    @PostMapping("/clear")
+    @DeleteMapping("/clear")
     public ResponseEntity<String> clearAll() {
         ticketService.clearAll();
         return ResponseEntity.ok("All tickets cleared");

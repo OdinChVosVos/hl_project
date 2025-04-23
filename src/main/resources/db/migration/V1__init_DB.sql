@@ -20,7 +20,7 @@ CREATE TABLE public.ticket (
     session_date    TIMESTAMP           NOT NULL,
     seat            INTEGER             NOT NULL,
     price           DECIMAL(10, 2)      NOT NULL CHECK (price >= 0),
-    FOREIGN KEY (movie_id) REFERENCES public.movie(id),
-    FOREIGN KEY (customer_id) REFERENCES public.customer(id)
+    FOREIGN KEY (movie_id) REFERENCES public.movie(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES public.customer(id) ON DELETE CASCADE
 );
 
