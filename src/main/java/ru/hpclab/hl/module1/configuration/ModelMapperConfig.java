@@ -3,11 +3,17 @@ package ru.hpclab.hl.module1.configuration;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import ru.hpclab.hl.module1.dto.TicketDto;
 import ru.hpclab.hl.module1.model.Ticket;
 
 @Configuration
 public class ModelMapperConfig {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
     @Bean
     public ModelMapper modelMapper() {
