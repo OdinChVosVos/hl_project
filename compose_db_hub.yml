@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_app
+    container_name: ${APP_HOST}
     ports:
       - "8080:8080"
     environment:
@@ -11,20 +12,35 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_JPA_SHOW_SQL=${JPA_SHOW_SQL:-false}
       - SERVER_TOMCAT_MAX_THREADS=${TOMCAT_MAX_THREADS:-200}
+    depends_on:
+      - additional_app
     cpus: "1.0"
     mem_limit: 1024m
+    networks:
+      - app_net
 
 
   additional_app:
     image: epishevf/hl_project_additional
+    container_name: ${ADDITIONAL_APP_HOST}
     ports:
       - "8081:8081"
     environment:
-      - COMPOSE_BAKE=true
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://${POSTGRES_HOST}:5432/${POSTGRES_DB}
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-      - SPRING_JPA_SHOW_SQL=${JPA_SHOW_SQL:-false}
+      - SERVER_PORT=8081
+      - APP_HOST=${APP_HOST}
       - SERVER_TOMCAT_MAX_THREADS=${TOMCAT_MAX_THREADS:-200}
+      - CACHE_LOG_INTERVAL=${CACHE_LOG_INTERVAL}
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/health" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    expose:
+      - "8081"
     cpus: "1.0"
     mem_limit: 1024m
+    networks:
+      - app_net
+
+networks:
+  app_net:
