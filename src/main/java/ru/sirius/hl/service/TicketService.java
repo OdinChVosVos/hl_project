@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -112,10 +113,16 @@ public class TicketService {
     public Map<LocalDate, Long> getMaxViewersByDay(String movieName) {
         long startTime = observabilityService.startTiming();
         try {
-            Long movieId = movieRepository.findByName(movieName).getFirst().getId();
-            return ticketRepository.countTicketsByMoviePerDate(movieId);
-        } catch (Exception e) {
-            throw new NoSuchElementException("Ticket with name " + movieName + " not found");
+            Long movieId = movieRepository.findByName(movieName)
+                    .orElseThrow(() -> new NoSuchElementException("Нет фильма с названием " + movieName))
+                    .getId();
+            List<Object[]> results = ticketRepository.countTicketsByMoviePerDate(movieId);
+            return results.stream()
+                    .collect(Collectors.toMap(
+                            row -> ((java.sql.Date) row[0]).toLocalDate(),
+                            row -> (Long) row[1],
+                            (v1, v2) -> v1
+                    ));
         } finally {
             observabilityService.stopTiming(startTime, "additionalStats");
         }
