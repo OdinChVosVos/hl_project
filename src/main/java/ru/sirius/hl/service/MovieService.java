@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import static ru.sirius.hl.service.BeanUtilsHelper.getNullPropertyNames;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -27,78 +26,82 @@ public class MovieService {
     private final MovieRepository movieRepository;
     private final ModelMapper modelMapper;
     private final TicketService ticketService;
-
+    private final ObservabilityService observabilityService;
 
     @Transactional
     public void clearAll() {
-        ticketService.clearAll();  // Clear dependent tickets first
-        movieRepository.deleteAll();
+        long startTime = observabilityService.startTiming();
+        try {
+            ticketService.clearAll(); // Clear dependent tickets first
+            movieRepository.deleteAll();
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
+        }
     }
 
-
-
-    // Get all movies (no pagination)
     public List<MovieDto> getAllMovies() {
-        List<Movie> movies = movieRepository.findAll();
-
-        return movies.stream()
-                .map(movie -> modelMapper.map(movie, MovieDto.class))
-                .collect(Collectors.toList());
+        long startTime = observabilityService.startTiming();
+        try {
+            List<Movie> movies = movieRepository.findAll();
+            return movies.stream()
+                    .map(movie -> modelMapper.map(movie, MovieDto.class))
+                    .collect(Collectors.toList());
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
+        }
     }
 
-
-
-    // Get movie by ID
     public MovieDto getMovieById(Long id) {
-        Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Movie with ID " + id + " not found"));
-
-        return modelMapper.map(movie, MovieDto.class);
+        long startTime = observabilityService.startTiming();
+        try {
+            Movie movie = movieRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Movie with ID " + id + " not found"));
+            return modelMapper.map(movie, MovieDto.class);
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
+        }
     }
 
-
-
-    // Delete movie by ID (physical deletion)
     public void deleteMovie(Long id) {
+        long startTime = observabilityService.startTiming();
         try {
             movieRepository.deleteById(id);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid ID format: " + id);
         } catch (Exception e) {
             throw new NoSuchElementException("Movie with ID " + id + " not found");
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
         }
     }
 
-
-
-    // Save a new movie
     public MovieDto saveMovie(MovieDto movie) {
+        long startTime = observabilityService.startTiming();
         try {
             Movie savedMovie = movieRepository.save(
                     modelMapper.map(movie, Movie.class));
-
             return modelMapper.map(savedMovie, MovieDto.class);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Failed to save movie due to invalid or duplicate data.", e);
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
         }
     }
 
-
-    // Update an existing movie
     public MovieDto updateMovie(Long id, MovieDto updatedMovie) {
+        long startTime = observabilityService.startTiming();
         try {
             Movie existingMovie = movieRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("Movie with ID " + id + " not found"));
 
-            // Update fields
             BeanUtils.copyProperties(updatedMovie, existingMovie, getNullPropertyNames(updatedMovie));
 
-            Movie savedmovie = movieRepository.save(existingMovie);
-            return modelMapper.map(savedmovie, MovieDto.class);
-
+            Movie savedMovie = movieRepository.save(existingMovie);
+            return modelMapper.map(savedMovie, MovieDto.class);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update key with ID " + id, e);
+            throw new RuntimeException("Failed to update movie with ID " + id, e);
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
         }
     }
-
 }

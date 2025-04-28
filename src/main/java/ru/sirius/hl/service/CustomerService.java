@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import static ru.sirius.hl.service.BeanUtilsHelper.getNullPropertyNames;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -27,58 +26,71 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
     private final TicketService ticketService;
-
+    private final ObservabilityService observabilityService;
 
     @Transactional
     public void clearAll() {
-        ticketService.clearAll();  // Clear dependent tickets first
-        customerRepository.deleteAll();
+        long startTime = observabilityService.startTiming();
+        try {
+            ticketService.clearAll(); // Clear dependent tickets first
+            customerRepository.deleteAll();
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
+        }
     }
 
-
-    // Get all customers (no pagination)
     public List<CustomerDto> getAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
-
-        return customers.stream()
-                .map(customer -> modelMapper.map(customer, CustomerDto.class))
-                .collect(Collectors.toList());
+        long startTime = observabilityService.startTiming();
+        try {
+            List<Customer> customers = customerRepository.findAll();
+            return customers.stream()
+                    .map(customer -> modelMapper.map(customer, CustomerDto.class))
+                    .collect(Collectors.toList());
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
+        }
     }
 
-    // Get customer by ID
     public CustomerDto getCustomerById(Long id) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Customer with ID " + id + " not found"));
-
-        return modelMapper.map(customer, CustomerDto.class);
+        long startTime = observabilityService.startTiming();
+        try {
+            Customer customer = customerRepository.findById(id)
+                    .orElseThrow(() -> new NoSuchElementException("Customer with ID " + id + " not found"));
+            return modelMapper.map(customer, CustomerDto.class);
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
+        }
     }
 
-    // Delete customer by ID (physical deletion)
     public void deleteCustomer(Long id) {
+        long startTime = observabilityService.startTiming();
         try {
             customerRepository.deleteById(id);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid ID format: " + id);
         } catch (Exception e) {
             throw new NoSuchElementException("Customer with ID " + id + " not found");
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
         }
     }
 
-    // Save a new customer
     public CustomerDto saveCustomer(CustomerDto customer) {
+        long startTime = observabilityService.startTiming();
         try {
             Customer savedCustomer = customerRepository.save(
                     modelMapper.map(customer, Customer.class));
-
             return modelMapper.map(savedCustomer, CustomerDto.class);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalArgumentException("Invalid email format: " + customer.getEmail(), e);
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
         }
     }
 
-    // Update an existing customer
     public CustomerDto updateCustomer(Long id, CustomerDto updatedCustomer) {
-        try{
+        long startTime = observabilityService.startTiming();
+        try {
             Customer existingCustomer = customerRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("Customer with ID " + id + " not found"));
 
@@ -87,10 +99,10 @@ public class CustomerService {
 
             Customer savedCustomer = customerRepository.save(existingCustomer);
             return modelMapper.map(savedCustomer, CustomerDto.class);
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update key with ID " + id, e);
+            throw new RuntimeException("Failed to update customer with ID " + id, e);
+        } finally {
+            observabilityService.stopTiming(startTime, "database");
         }
-
     }
 }
