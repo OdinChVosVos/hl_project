@@ -99,7 +99,7 @@ public class TicketController {
     public ResponseEntity<Map<LocalDate, Long>> getMaxMovieViewersByDay(@RequestParam("movie") String movieName) {
         long startTime = observabilityService.startTiming();
         try {
-            Map<LocalDate, Long> statistics = ticketService.getMaxViewersByDay(movieName);
+            Map<LocalDate, Long> statistics = ticketService.getMaxViewersByMovie(movieName);
             return ResponseEntity.ok(statistics);
         } finally {
             observabilityService.stopTiming(startTime, "controller");

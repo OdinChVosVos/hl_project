@@ -16,7 +16,7 @@ public class ObservabilityService {
     private final Map<String, ConcurrentLinkedQueue<Timing>> timings = new ConcurrentHashMap<>();
 
     private final long minuteWindow = 60_000;
-    private final long[] statsWindows = {10_000, 30_000, 60_000};
+    private final long[] statsWindows = {20_000, 30_000, 60_000};
 
 
     private record Timing(long timestamp, long duration) {}
@@ -49,7 +49,7 @@ public class ObservabilityService {
     }
 
 
-    @Scheduled(fixedRate = 10_000)
+    @Scheduled(fixedRate = 20_000)
     public void buildStatistics() {
         long now = Instant.now().toEpochMilli();
 

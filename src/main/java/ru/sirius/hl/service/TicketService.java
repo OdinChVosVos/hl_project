@@ -110,7 +110,7 @@ public class TicketService {
         }
     }
 
-    public Map<LocalDate, Long> getMaxViewersByDay(String movieName) {
+    public Map<LocalDate, Long> getMaxViewersByMovie(String movieName) {
         long startTime = observabilityService.startTiming();
         try {
             Long movieId = movieRepository.findByName(movieName)

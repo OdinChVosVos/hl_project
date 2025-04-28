@@ -11,3 +11,15 @@ spring:
   flyway:
     enabled: true
     out-of-order: true
+  kafka:
+    bootstrap-servers: hl22.zil:9094
+    consumer:
+      group-id: fedor-group
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: ru.sirius.hl.*
+        spring.json.value.default.type: ru.sirius.hl.service.KafkaConsumerService$KafkaMessage
+        spring.json.use.type.headers: false
